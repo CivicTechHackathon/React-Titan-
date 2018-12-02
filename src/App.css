@@ -1,0 +1,25 @@
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  text-align: center;
+  padding: 8px;
+
+}
+th{
+  color: white;
+  background-color: black;
+  text-align: center;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+.button5 {
+  border-radius: 50%;
+  margin: 5px;
+  color: white;
+}
