@@ -85,176 +85,211 @@ class App extends Component {
   }
 
   redClicked(name) {
-    swal("Traffic Stopped!", "You please wait" + name + "is stopped for 10min", "danger")
-    // onClick={() => swal("Traffic flow Allowed!", "from" + item.veneue.name, "success")}
-    // onClick={() => swal("Traffic flow Allowed!", "", "success")}
+    swal("Traffic Stopped!", "the place " + name + " is stopped for certain period of time", "error")
+
   }
 
   greenClicked(name) {
-    // swal("Traffic Stopped!", "You please wait" + name + "is stopped for 10min", "error")
-    swal("Traffic flow Allowed!", "from position " + name+"", "success")
-  
-  // onClick={() => swal("Traffic flow Allowed!", "", "success")}
-}
+    swal("Traffic flow Allowed!", "from position " + name + "", "success")
 
-notiClicked(name) {
-  // onClick={() => swal("Traffic flow Allowed!", "from" + item.veneue.name, "success")}
-  // onClick={() => swal("Traffic flow Allowed!", "", "success")}
-}
+  }
 
-renderPoliceDashboard() {
-  const { Venes } = this.state;
+  notiClicked(name1) {
+    swal({
+      text: 'Please add a notice for public '+name1+'',
+      content: "input",
+      button: {
+        text: "Send!",
+        closeModal: false,
+      },
+    })
+      .then(name => {
+        if (!name) throw null;
 
-  return (
-    <div>
-      <div >
-        <GeoLocation app_id="LRPmFfziO59Zxz1l3Uz2" app_code="u5na03-FeNTyqHFE1C5nwg" />
+        return fetch(`https://itunes.apple.com/search?term=${name}&entity=movie`);
+      })
+      .then(results => {
+        return results.json();
+      })
+      .then(json => {
+        const movie = json.results[0];
+
+        if (!movie) {
+          return swal("Notification has been sended");
+        }
+
+        const name = movie.trackName;
+        const imageURL = movie.artworkUrl100;
+
+        swal({
+          title: "Top result:",
+          text: name,
+          icon: imageURL,
+        });
+      })
+      .catch(err => {
+        if (err) {
+          swal("Oh noes!", "The AJAX request failed!", "error");
+        } else {
+          swal.stopLoading();
+          swal.close();
+        }
+      });
+  }
+
+  renderPoliceDashboard() {
+    const { Venes } = this.state;
+
+    return (
+      <div>
+        <div >
+          <GeoLocation app_id="LRPmFfziO59Zxz1l3Uz2" app_code="u5na03-FeNTyqHFE1C5nwg" />
+        </div>
+        <br /> <br />
+        <div style={{ overflowX: 'auto', width: "80%", marginTop: "100px", textAlign: "center", margin: "120px" }}>
+          <table>
+            <tr>
+              <th>S#no </th>
+              <th>Location Name</th>
+              <th>Location Address</th>
+              <th>Is red alert here</th>
+              <th>Control Signals</th>
+            </tr>
+            {Venes.map((item, index) => {
+              console.log(item);
+              return (
+                <tr>
+                  <td>{index}</td>
+                  <td>{item.venue.name}</td>
+                  <td>{item.venue.location.address}</td>
+                  <td>True</td>
+                  {/* <td>{item.venue.address}</td> */}
+                  <td>
+                    <button style={{ backgroundColor: "red" }} onClick={() => this.redClicked(item.venue.name)} className="button button5">red</button>
+                    <button style={{ backgroundColor: "green" }} onClick={() => this.greenClicked(item.venue.name)} className="button button5">green</button>
+                    <button style={{ backgroundColor: "purple" }} onClick={() => this.notiClicked(item.venue.name)} className="button button5">send alert</button>
+
+                  </td>
+                </tr>
+
+              )
+            })}
+          </table>
+        </div>
       </div>
-      <br /> <br />
-      <div style={{ overflowX: 'auto', width: "80%", marginTop: "100px", textAlign: "center", margin: "120px" }}>
-        <table>
-          <tr>
-            <th>S#no </th>
-            <th>Location Name</th>
-            <th>Location Address</th>
-            <th>Is red alert here</th>
-            <th>Control Signals</th>
-          </tr>
-          {Venes.map((item, index) => {
-            console.log(item);
-            return (
-              <tr>
-                <td>{index}</td>
-                <td>{item.venue.name}</td>
-                <td>{item.venue.location.address}</td>
-                <td>True</td>
-                {/* <td>{item.venue.address}</td> */}
-                <td>
-                  <button style={{ backgroundColor: "red" }} onClick={() => this.redClicked(item.venue.name)} className="button button5">red</button>
-                  <button style={{ backgroundColor: "green" }} onClick={() => this.greenClicked(item.venue.name)} className="button button5">green</button>
-                  <button style={{ backgroundColor: "purple" }} onClick={() => this.notiClicked(item.venue.name)} className="button button5">send alert</button>
+    )
+  }
 
-                </td>
-              </tr>
 
-            )
-          })}
-        </table>
+  renderSignUp() {
+
+    return (
+      <div style={{ width: "100%", position: "relative", top: "-1vh", left: "150px" }}>
+        <img src={traffic} width={"600px"} height={"500px"} style={{ float: "right", position: "relative", right: "400px" }} />
+        <SignUpPage getData={this.getData} />
       </div>
-    </div>
-  )
-}
+    );
+
+  }
+  // return (
+  //   <div style={{ width: '70%', margin: '30px',border:"2px solid red" }}>
 
 
-renderSignUp() {
+  //   </div>
+  // )
 
-  return (
-    <div style={{ width: "100%", position: "relative", top: "-1vh", left: "150px" }}>
-      <img src={traffic} width={"600px"} height={"500px"} style={{ float: "right", position: "relative", right: "400px" }} />
-      <SignUpPage getData={this.getData} />
-    </div>
-  );
+  render() {
+    const { Venes, isPoliceLogin } = this.state;
 
-}
-// return (
-//   <div style={{ width: '70%', margin: '30px',border:"2px solid red" }}>
+    // const paperStyle = { padding: "0px", margin: "0px" };
+    // const { post_obj } = this.state;
+    return (
+      <div>
 
-
-//   </div>
-// )
-
-render() {
-  const { Venes, isPoliceLogin } = this.state;
-
-  // const paperStyle = { padding: "0px", margin: "0px" };
-  // const { post_obj } = this.state;
-  return (
-    <div>
-
-      <Layout>
-        <Header waterfall>
-          <HeaderRow title="Traffic Controlling System ">
-            <Textfield
-              value=""
-              onChange={() => { }}
-              label="Search2"
-              expandable
-              expandableIcon="search"
-            />
-          </HeaderRow>
-          <HeaderRow>
+        <Layout>
+          <Header waterfall>
+            <HeaderRow title="Traffic Controlling System ">
+              <Textfield
+                value=""
+                onChange={() => { }}
+                label="Search2"
+                expandable
+                expandableIcon="search"
+              />
+            </HeaderRow>
+            <HeaderRow>
+              <Navigation>
+                <a href="#">Red Alert Areas</a>
+                <a href="#">Send Notification</a>
+                {/* <a href="#">Link</a>
+                <a href="#">Link</a> */}
+              </Navigation>
+            </HeaderRow>
+          </Header>
+          <Drawer title="Title">
             <Navigation>
               <a href="#">Red Alert Areas</a>
               <a href="#">Send Notification</a>
-              {/* <a href="#">Link</a>
-                <a href="#">Link</a> */}
             </Navigation>
-          </HeaderRow>
-        </Header>
-        <Drawer title="Title">
-          <Navigation>
-            <a href="#">Red Alert Areas</a>
-            <a href="#">Send Notification</a>
-          </Navigation>
-        </Drawer>
-        <Content>
-          <br /><br />
-          <div>
-            {isPoliceLogin == true && this.renderPoliceDashboard()}
-          </div>
-          <div>
-            {isPoliceLogin == false && this.renderSignUp()}
-          </div>
-          {/* {isPoliceLogin == false && this.renderUserDashboard()} */}
-          <br /><br />
-          <Footer size="mega">
-            <FooterSection type="middle">
-              <FooterDropDownSection title="Features">
+          </Drawer>
+          <Content>
+            <br /><br />
+            <div>
+              {isPoliceLogin == true && this.renderPoliceDashboard()}
+            </div>
+            <div>
+              {isPoliceLogin == false && this.renderSignUp()}
+            </div>
+            {/* {isPoliceLogin == false && this.renderUserDashboard()} */}
+            <br /><br />
+            <Footer size="mega">
+              <FooterSection type="middle">
+                <FooterDropDownSection title="Features">
+                  <FooterLinkList>
+                    <a href="#">About</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Partners</a>
+                    <a href="#">Updates</a>
+                  </FooterLinkList>
+                </FooterDropDownSection>
+                <FooterDropDownSection title="Details">
+                  <FooterLinkList>
+                    <a href="#">Specs</a>
+                    <a href="#">Tools</a>
+                    <a href="#">Resources</a>
+                  </FooterLinkList>
+                </FooterDropDownSection>
+                <FooterDropDownSection title="Technology">
+                  <FooterLinkList>
+                    <a href="#">How it works</a>
+                    <a href="#">Patterns</a>
+                    <a href="#">Usage</a>
+                    <a href="#">Products</a>
+                    <a href="#">Contracts</a>
+                  </FooterLinkList>
+                </FooterDropDownSection>
+                <FooterDropDownSection title="FAQ">
+                  <FooterLinkList>
+                    <a href="#">Questions</a>
+                    <a href="#">Answers</a>
+                    <a href="#">Contact Us</a>
+                  </FooterLinkList>
+                </FooterDropDownSection>
+              </FooterSection>
+              <FooterSection type="bottom" logo="Title">
                 <FooterLinkList>
-                  <a href="#">About</a>
-                  <a href="#">Terms</a>
-                  <a href="#">Partners</a>
-                  <a href="#">Updates</a>
+                  <a href="#">Help</a>
+                  <a href="#">Privacy & Terms</a>
                 </FooterLinkList>
-              </FooterDropDownSection>
-              <FooterDropDownSection title="Details">
-                <FooterLinkList>
-                  <a href="#">Specs</a>
-                  <a href="#">Tools</a>
-                  <a href="#">Resources</a>
-                </FooterLinkList>
-              </FooterDropDownSection>
-              <FooterDropDownSection title="Technology">
-                <FooterLinkList>
-                  <a href="#">How it works</a>
-                  <a href="#">Patterns</a>
-                  <a href="#">Usage</a>
-                  <a href="#">Products</a>
-                  <a href="#">Contracts</a>
-                </FooterLinkList>
-              </FooterDropDownSection>
-              <FooterDropDownSection title="FAQ">
-                <FooterLinkList>
-                  <a href="#">Questions</a>
-                  <a href="#">Answers</a>
-                  <a href="#">Contact Us</a>
-                </FooterLinkList>
-              </FooterDropDownSection>
-            </FooterSection>
-            <FooterSection type="bottom" logo="Title">
-              <FooterLinkList>
-                <a href="#">Help</a>
-                <a href="#">Privacy & Terms</a>
-              </FooterLinkList>
-            </FooterSection>
-          </Footer>
-          {/* <div className="page-content" >
+              </FooterSection>
+            </Footer>
+            {/* <div className="page-content" >
             </div> */}
-        </Content>
-      </Layout>
-    </div >
-  );
-}
+          </Content>
+        </Layout>
+      </div >
+    );
+  }
 }
 
 export default App;
